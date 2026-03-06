@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iClone.evn | Պրեմիում Օնլայն Խանութ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <nav class="navbar">
+        <div class="logo"><img src="images/logo.jpg" alt="iClone.evn"></div>
+        <ul class="nav-links" id="navMenu">
+            <li><a href="index.html">Գլխավոր</a></li>
+            <li><a href="catalog.html">Կատալոգ</a></li>
+            <li><a href="about.html">Մեր մասին</a></li>
+            <li><a href="blog.html">Բլոգ</a></li>
+            <li><a href="contact.html">Կապ</a></li>
+        </ul>
+        <div class="nav-icons">
+            <div class="cart-icon" onclick="openCart()">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </div>
+            <div class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+        </div>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>iClone.evn</h1>
+    <p>Պրեմիում դասի քոփիներ՝ հասանելի գներով:</p>
+    <a href="#products" class="btn">Գնել հիմա</a>
+</section>
+
+
+
+<div class="container" id="products">
+    <h2 class="section-title">Լավագույն Առաջարկներ</h2>
+    <div class="product-grid" id="productGrid"></div>
+</div>
+
+<div id="cartModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeCart()">&times;</span>
+        <h2>Ձեր Զամբյուղը</h2>
+        <div id="cartItems"></div>
+        <div class="cart-total">Ընդհանուր: <span id="totalPrice">0</span> ֏</div>
+        <button class="checkout-btn" onclick="checkout()"><i class="fab fa-whatsapp"></i> Պատվիրել WhatsApp-ով</button>
+    </div>
+</div>
+
+<!-- ===== REVIEWS CAROUSEL ===== -->
+<section class="reviews container" id="reviews">
+    <h2 class="section-title">Հաճախորդների Կարծիքներ</h2>
+    <div class="reviews-carousel" id="reviewsCarousel">
+        <!-- JS-ով լրացվելու է -->
+    </div>
+</section>
+<footer>
+    <div class="footer-grid" style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:40px;padding:50px 20px;background:#fff;border-top:1px solid #eee;">
+        
+        <!-- App Info -->
+        <div>
+            <h3>iClone.evn App</h3>
+            <p>Ներբեռնեք մեր հավելվածը և գնել պլանշետներ, ժամացույցներ, AirPods և այլ տեխնիկա մեկ հպումով։ Արագ առաքում և հուսալի գնումներ Ձեր հեռախոսից․</p>
+        </div>
+
+        <!-- Categories -->
+        <div>
+            <h4>Բաժիններ</h4>
+            <p><a href="#">Սմարթֆոններ</a></p>
+            <p><a href="#">Պլանշետներ</a></p>
+            <p><a href="#">Ժամացույցներ</a></p>
+            <p><a href="#">Նոթբուքեր</a></p>
+            <p><a href="#">Ֆոտո և տեսախցիկներ</a></p>
+            <p><a href="#">Աուդիո սարքեր</a></p>
+        </div>
+
+        <!-- Company -->
+        <div>
+            <h4>Ընկերություն</h4>
+            <p><a href="#">Բոլոր բրենդերը</a></p>
+            <p><a href="#">Մեր մասին</a></p>
+            <p><a href="#">Բլոգ</a></p>
+            <p><a href="#">Հաճախակի հարցեր</a></p>
+            <p><a href="#">Ավանդային պայմաններ</a></p>
+            <p><a href="#">Առաքում և վճարում</a></p>
+            <p><a href="#">Կապ</a></p>
+            <p><a href="#">Գաղտնիության քաղաքականություն</a></p>
+            <p><a href="#">Օգտագործման պայմաններ</a></p>
+            <p><a href="#">Cookie քաղաքականություն</a></p>
+        </div>
+
+        <!-- Contacts -->
+        <div>
+            <h4>Կապ</h4>
+            <p>⏰ Պն-Ուր 10:00 - 21:00</p>
+            <p>Կիր 10:00 - 20:00</p>
+            <p>📞 011 703 703</p>
+            <p>📍 Երևան, Հայաստան</p>
+        </div>
+    </div>
+
+    <div class="footer-bottom" style="text-align:center;padding:20px 0;color:#86868b;font-size:14px;background:#f5f5f7;">
+        &copy; 2026 iClone.evn | Բոլոր իրավունքները պաշտպանված են
+    </div>
+</footer>   
+<script src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iClone Admin Panel</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+:root{
+  --bg:#0b0b0d;
+  --glass:rgba(255,255,255,.06);
+  --border:rgba(255,255,255,.12);
+  --accent:#0a84ff;
+  --green:#30d158;
+  --red:#ff453a;
+  --text:#fff;
+  --dim:#9a9a9a;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui}
+body{background:var(--bg);color:var(--text);padding:20px}
+
+/* GLASS */
+.glass{
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:25px;
+  backdrop-filter:blur(20px);
+}
+
+/* LOGIN */
+#login{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+/* HEADER */
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+/* TABS */
+.tabs{display:flex;gap:10px;margin-bottom:25px}
+.tab{
+  padding:10px 20px;
+  border-radius:12px;
+  background:var(--glass);
+  opacity:.6;
+  cursor:pointer;
+}
+.tab.active{opacity:1;background:var(--accent)}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:340px 1fr;
+  gap:25px;
+}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+
+/* INPUTS */
+input,textarea,select{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:none;
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  margin-bottom:12px;
+}
+input:focus,textarea:focus{outline:1px solid var(--accent)}
+
+button{
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:var(--accent);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.hidden{display:none}
+
+/* PRODUCT ITEM */
+.item{
+  display:flex;
+  gap:15px;
+  align-items:center;
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:15px;
+  margin-bottom:10px;
+}
+.item img{
+  width:55px;
+  height:55px;
+  background:#fff;
+  border-radius:10px;
+  object-fit:contain;
+}
+.delete{
+  margin-left:auto;
+  background:none;
+  border:none;
+  color:var(--red);
+  font-size:18px;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="glass" style="width:340px;text-align:center">
+    <h2 style="margin-bottom:20px">iCLONE ADMIN</h2>
+    <input id="username" type="text" placeholder="Օգտանուն">
+    <input id="pass" type="password" placeholder="Գաղտնաբառ">
+    <button id="loginBtn">Մուտք</button>
+  </div>
+</div>
+
+<header>
+  <div>
+    <h1>Admin Panel</h1>
+    <small style="color:var(--dim)">iClone Store</small>
+  </div>
+  <button id="logoutBtn" style="background:none;color:var(--dim)">Ելք</button>
+</header>
+
+<div class="tabs">
+  <div class="tab active" id="tab-products">Ապրանքներ</div>
+</div>
+
+<!-- PRODUCTS -->
+<section id="products">
+  <div class="grid">
+    <div class="glass">
+      <h3>Նոր Ապրանք</h3>
+      <input id="name" placeholder="Անվանում">
+      <select id="category">
+        <option value="Սմարթֆոններ">Սմարթֆոններ</option>
+        <option value="Պլանշետներ">Պլանշետներ</option>
+        <option value="Ժամացույցներ">Ժամացույցներ</option>
+        <option value="Նոթբուքեր">Նոթբուքեր</option>
+        <option value="Աուդիո սարքեր">Աուդիո սարքեր</option>
+      </select>
+      <input id="price" type="number" placeholder="Գին">
+      <input id="img" placeholder="Նկարի URL">
+      <textarea id="desc" placeholder="Նկարագրություն" rows="3"></textarea>
+      <input id="stock" type="number" placeholder="Առկայություն">
+      <label style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <input type="checkbox" id="featured" style="width:auto;">
+        <span>Առաջատար ապրանք</span>
+      </label>
+      <button id="addProduct">Ավելացնել</button>
+      <button id="updateProduct" style="background:var(--green);display:none;">Թարմացնել</button>
+      <button id="cancelEdit" style="background:var(--dim);display:none;">Չեղարկել</button>
+    </div>
+    <div id="productList"></div>
+  </div>
+</section>
+
+<script>
+/* ELEMENTS */
+const el=id=>document.getElementById(id);
+
+const login = el("login");
+const username = el("username");
+const pass = el("pass");
+const loginBtn = el("loginBtn");
+const logoutBtn = el("logoutBtn");
+
+const products = el("products");
+const tabProducts = el("tab-products");
+
+const addProduct = el("addProduct");
+const updateProduct = el("updateProduct");
+const cancelEdit = el("cancelEdit");
+const productList = el("productList");
+
+const name = el("name");
+const price = el("price");
+const img = el("img");
+const desc = el("desc");
+const category = el("category");
+const stock = el("stock");
+const featured = el("featured");
+
+let currentEditId = null;
+
+/* API BASE */
+const API_BASE = '/api';
+
+/* LOGIN */
+loginBtn.onclick = async () => {
+  try {
+    const response = await fetch(`${API_BASE}/admin/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: username.value,
+        password: pass.value
+      })
+    });
+    
+    if (response.ok) {
+      login.style.display = "none";
+      loadProducts();
+    } else {
+      alert("Սխալ տվյալներ");
+    }
+  } catch (error) {
+    alert("Սխալ կապի հետ");
+  }
+};
+
+logoutBtn.onclick = () => {
+  login.style.display = "flex";
+  username.value = '';
+  pass.value = '';
+};
+
+/* ADD PRODUCT */
+addProduct.onclick=async()=>{
+  if(!name.value||!price.value||!img.value){
+    alert("Լրացրեք պարտադիր դաշտերը");
+    return;
+  }
+  
+  try {
+    const response = await fetch(`${API_BASE}/products`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: name.value,
+        category: category.value,
+        price: +price.value,
+        image: img.value,
+        description: desc.value,
+        stock: +stock.value || 0,
+        featured: featured.checked
+      })
+    });
+    
+    if (response.ok) {
+      clearForm();
+      loadProducts();
+      alert("Ապրանքը ավելացված է");
+    } else {
+      alert("Սխալ ապրանքի ավելացման ժամանակ");
+    }
+  } catch (error) {
+    alert("Սխալ կապի հետ");
+  }
+};
+
+/* UPDATE PRODUCT */
+updateProduct.onclick=async()=>{
+  if(!name.value||!price.value||!img.value||!currentEditId){
+    alert("Լրացրեք պարտադիր դաշտերը");
+    return;
+  }
+  
+  try {
+    const response = await fetch(`${API_BASE}/products/${currentEditId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: name.value,
+        category: category.value,
+        price: +price.value,
+        image: img.value,
+        description: desc.value,
+        stock: +stock.value || 0,
+        featured: featured.checked
+      })
+    });
+    
+    if (response.ok) {
+      clearForm();
+      loadProducts();
+      alert("Ապրանքը թարմացված է");
+    } else {
+      alert("Սխալ ապրանքի թարմացման ժամանակ");
+    }
+  } catch (error) {
+    alert("Սխալ կապի հետ");
+  }
+};
+
+/* LOAD PRODUCTS */
+async function loadProducts(){
+  try {
+    const response = await fetch(`${API_BASE}/products`);
+    const products = await response.json();
+    
+    productList.innerHTML = products.map(p => `
+      <div class="item">
+        <img src="${p.image}">
+        <div>
+          <b>${p.name}</b><br>
+          <small>${p.price.toLocaleString()} ֏ • ${p.category}</small><br>
+          <small>Առկա: ${p.stock || 0} ${p.featured ? '⭐' : ''}</small>
+        </div>
+        <button onclick="editProduct('${p.id}')" style="background:var(--accent);margin-right:10px;">
+          <i class="fa fa-edit"></i>
+        </button>
+        <button class="delete" onclick="deleteProduct('${p.id}')">
+          <i class="fa fa-trash"></i>
+        </button>
+      </div>
+    `).join("");
+  } catch (error) {
+    console.error('Error loading products:', error);
+  }
+}
+
+/* EDIT PRODUCT */
+window.editProduct = async (id) => {
+  try {
+    const response = await fetch(`${API_BASE}/products/${id}`);
+    const product = await response.json();
+    
+    name.value = product.name;
+    category.value = product.category;
+    price.value = product.price;
+    img.value = product.image;
+    desc.value = product.description || '';
+    stock.value = product.stock || 0;
+    featured.checked = product.featured || false;
+    
+    currentEditId = id;
+    addProduct.style.display = 'none';
+    updateProduct.style.display = 'block';
+    cancelEdit.style.display = 'block';
+  } catch (error) {
+    alert('Սխալ ապրանքի բեռնման ժամանակ');
+  }
+};
+
+/* DELETE PRODUCT */
+window.deleteProduct = async (id) => {
+  if (!confirm("Ջնջե՞լ ապրանքը")) return;
+  
+  try {
+    const response = await fetch(`${API_BASE}/products/${id}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      loadProducts();
+      alert("Ապրանքը ջնջված է");
+    } else {
+      alert("Սխալ ապրանքի ջնջման ժամանակ");
+    }
+  } catch (error) {
+    alert("Սխալ կապի հետ");
+  }
+};
+
+/* CANCEL EDIT */
+cancelEdit.onclick = () => {
+  clearForm();
+};
+
+/* CLEAR FORM */
+function clearForm() {
+  name.value = '';
+  price.value = '';
+  img.value = '';
+  desc.value = '';
+  stock.value = '';
+  featured.checked = false;
+  currentEditId = null;
+  
+  addProduct.style.display = 'block';
+  updateProduct.style.display = 'none';
+  cancelEdit.style.display = 'none';
+}
+</script>
+
+</body>
+</html>

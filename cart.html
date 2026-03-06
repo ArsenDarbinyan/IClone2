@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iClone.evn | Զամբյուղ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #000;
+            --accent: #0071e3;
+            --bg: #f5f5f7;
+            --white: #fff;
+            --text-gray: #86868b;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        body { background: var(--bg); color: #1d1d1f; min-height: 100vh; }
+
+        header { background: var(--white); padding: 15px 20px; box-shadow: var(--shadow); position: sticky; top:0; z-index:1000; }
+        header h1 { font-size: 1.5rem; }
+
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+
+        .cart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .cart-grid { grid-template-columns: 1fr; }
+        }
+
+        .cart-item {
+            display: flex; align-items: center; gap: 15px; background: var(--white);
+            padding: 15px; border-radius: 15px; box-shadow: var(--shadow);
+        }
+        .cart-item img { width: 80px; height: 80px; object-fit: contain; border-radius: 10px; }
+        .cart-item-details { flex:1; }
+        .cart-item-details h4 { font-size: 16px; margin-bottom: 5px; }
+        .cart-item-details small { font-size: 14px; color: var(--accent); }
+        .cart-item-actions { text-align: right; }
+        .cart-item-actions i { cursor: pointer; color: red; font-size: 18px; margin-left: 10px; }
+
+        .cart-summary { margin-top: 30px; text-align: right; font-size: 1.2rem; font-weight: bold; }
+        .checkout-btn {
+            background: #25d366; color: white; width: 100%; padding: 15px;
+            border: none; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 16px;
+            margin-top: 15px;
+        }
+
+        footer { background: white; padding: 30px 20px; margin-top: 50px; border-top: 1px solid #eee; text-align:center; color: var(--text-gray); font-size:14px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>iClone.evn | Ձեր Զամբյուղը</h1>
+</header>
+
+<div class="container">
+    <div class="cart-grid" id="cartItems">
+        <!-- Cart items կավելացվեն JS-ով -->
+    </div>
+    <div class="cart-summary">
+        Ընդհանուր: <span id="totalPrice">0</span> ֏
+        <button class="checkout-btn" onclick="checkout()"><i class="fab fa-whatsapp"></i> Պատվիրել WhatsApp-ով</button>
+    </div>
+</div>
+
+<footer>
+    &copy; 2026 iClone.evn | Պատրաստված է սիրով ❤️
+</footer>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBmWL1PsV9SDbAOfYAILwtHrTzKR0yHVmc",
+        authDomain: "iclone-d3236.firebaseapp.com",
+        projectId: "iclone-d3236",
+        storageBucket: "iclone-d3236.firebasestorage.app",
+        messagingSenderId: "673626156047",
+        appId: "1:673626156047:web:c440e5af04e8f23835877a",
+        measurementId: "G-BBRE1WNLTW"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    function renderCart() {
+        const container = document.getElementById('cartItems');
+        let total = 0;
+        if(cart.length === 0) container.innerHTML = '<p>Զամբյուղը դատարկ է</p>';
+
+        container.innerHTML = cart.map((item, index) => {
+            total += item.price * item.quantity;
+            return `
+                <div class="cart-item">
+                    <img src="${item.img}" alt="${item.name}">
+                    <div class="cart-item-details">
+                        <h4>${item.name}</h4>
+                        <small>${item.quantity} x ${item.price.toLocaleString()} ֏</small>
+                    </div>
+                    <div class="cart-item-actions">
+                        <i class="fas fa-trash" onclick="removeItem(${index})"></i>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        document.getElementById('totalPrice').innerText = total.toLocaleString();
+    }
+
+    window.removeItem = (index) => {
+        cart.splice(index,1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+    }
+
+    window.checkout = async () => {
+        if(cart.length === 0) return alert("Զամբյուղը դատարկ է");
+        const phone = prompt("Մուտքագրեք Ձեր հեռախոսահամարը:");
+        if(!phone) return;
+
+        const total = cart.reduce((acc, item) => acc + (item.price*item.quantity), 0);
+
+        try {
+            await addDoc(collection(db, "orders"), {
+                phone, items: cart, totalPrice: total, date: new Date().toLocaleString()
+            });
+
+            let message = `Նոր Պատվեր iClone!%0A📞 Հեռ: ${phone}%0A%0A`;
+            cart.forEach(i => message += `• ${i.name} (${i.quantity} հատ)%0A`);
+            message += `%0A💰 Ընդհանուր: ${total.toLocaleString()} ֏`;
+            
+            window.open(`https://wa.me/37400000000?text=${message}`, '_blank');
+            cart = []; localStorage.setItem('cart', JSON.stringify(cart)); renderCart();
+        } catch(e) { alert("Սխալ տեղի ունեցավ"); }
+    }
+
+    renderCart();
+</script>
+
+</body>
+</html>
