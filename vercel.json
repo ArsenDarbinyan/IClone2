@@ -40,6 +40,18 @@
       "dest": "/admin.html"
     },
     {
+      "src": "/style.css",
+      "dest": "/style.css"
+    },
+    {
+      "src": "/script.js",
+      "dest": "/script.js"
+    },
+    {
+      "src": "/images/(.*)",
+      "dest": "/images/$1"
+    },
+    {
       "src": "/",
       "dest": "/index.html"
     },
